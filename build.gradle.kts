@@ -27,6 +27,7 @@ dependencies {
     implementation("org.koin:koin-ktor:$koin_version")
     implementation("org.koin:koin-logger-slf4j:$koin_version")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
+    testImplementation("org.koin:koin-test:$koin_version")
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
