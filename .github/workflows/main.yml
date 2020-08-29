@@ -16,4 +16,4 @@ jobs:
         wrapper-cache-enabled: true
         dependencies-cache-enabled: true
         configuration-cache-enabled: true 
-        arguments: test
+        arguments: clean test
