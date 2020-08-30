@@ -1,7 +1,22 @@
+buildscript {
+    repositories {
+        mavenCentral()
+
+    }
+    dependencies {
+        classpath("net.saliman:gradle-properties-plugin:1.4.6")
+    }
+}
+
+allprojects {
+    apply<net.saliman.gradle.plugin.properties.PropertiesPlugin>()
+}
+
 val ktor_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
 val koin_version: String by project
+val project_id: String by project
 
 plugins {
     application
@@ -27,6 +42,7 @@ tasks.withType<Jar> {
 }
 
 tasks.withType<Test> {
+    systemProperty("project_id", project_id)
     testLogging {
         events = setOf(
             org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
@@ -94,6 +110,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("org.koin:koin-ktor:$koin_version")
     implementation("org.koin:koin-logger-slf4j:$koin_version")
+    implementation("com.google.firebase:firebase-admin:7.0.0")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.koin:koin-test:$koin_version")
 }
