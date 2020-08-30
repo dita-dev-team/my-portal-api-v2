@@ -5,5 +5,5 @@
 *.iml
 *.ipr
 *.iws
-service-account.json
+google-credentials.json
 gradle-local.properties
