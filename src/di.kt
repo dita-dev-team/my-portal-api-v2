@@ -9,7 +9,7 @@ import java.io.FileInputStream
 val appModules = module {
     single {
         val options = FirebaseOptions.builder()
-            .setCredentials(GoogleCredentials.fromStream(FileInputStream("service-account.json")))
+            .setCredentials(GoogleCredentials.fromStream(FileInputStream("google-credentials.json")))
             .setProjectId(System.getProperty("project_id"))
             .build()
 
