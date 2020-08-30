@@ -11,9 +11,14 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: 11
+    - name: Setup environment variables
+      env: # Or as an environment variable
+        SERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT }}
+        GRADLE_LOCAL_PROPERTIES: ${{ secrets.GRADLE_LOCAL_PROPERTIES }}
+      run: echo $SERVICE_ACCOUNT > service-account.json && echo $GRADLE_LOCAL_PROPERTIES > gradle-local.properties
     - uses: eskatos/gradle-command-action@v1
       with:
         wrapper-cache-enabled: true
         dependencies-cache-enabled: true
-        configuration-cache-enabled: true 
+        configuration-cache-enabled: true
         arguments: clean test
