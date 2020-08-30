@@ -6,6 +6,7 @@ val koin_version: String by project
 plugins {
     application
     kotlin("jvm") version "1.4.0"
+    id("com.github.johnrengelman.shadow") version "5.0.0"
 }
 
 group = "dita.dev"
@@ -13,6 +14,16 @@ version = "0.0.1"
 
 application {
     mainClassName = "io.ktor.server.netty.EngineMain"
+}
+
+tasks.withType<Jar> {
+    manifest {
+        attributes(
+            mapOf(
+                "Main-Class" to application.mainClassName
+            )
+        )
+    }
 }
 
 tasks.withType<Test> {
