@@ -107,12 +107,16 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
+    implementation("com.squareup.okhttp3:okhttp:4.8.1")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.8.1")
+    implementation("com.squareup.moshi:moshi-kotlin:1.9.3")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("org.koin:koin-ktor:$koin_version")
     implementation("org.koin:koin-logger-slf4j:$koin_version")
     implementation("com.google.firebase:firebase-admin:7.0.0")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.koin:koin-test:$koin_version")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.9")
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
