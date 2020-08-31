@@ -24,13 +24,14 @@ interface RemoteConfigRepo {
 
 class RemoteConfigRepoImpl(private val client: OkHttpClient) : RemoteConfigRepo {
 
-    private val gson = GsonBuilder().serializeNulls().disableHtmlEscaping().create()
     private val projectId = System.getProperty("project_id")
+    private val gson = GsonBuilder().serializeNulls().disableHtmlEscaping().create()
+    private val url = "https://firebaseremoteconfig.googleapis.com/v1/projects/${projectId}/remoteConfig"
+
 
     private var etag: String? = null
 
     override suspend fun getRemoteConfig(): RemoteConfig {
-        val url = "https://firebaseremoteconfig.googleapis.com/v1/projects/${projectId}/remoteConfig"
         val request = Request.Builder()
             .url(url)
             .get()
@@ -38,7 +39,6 @@ class RemoteConfigRepoImpl(private val client: OkHttpClient) : RemoteConfigRepo 
             .header("Accept-Encoding", "gzip")
             .header("Authorization", "Bearer ${getAccessToken()}")
             .build()
-        val gson = GsonBuilder().serializeNulls().disableHtmlEscaping().create()
         val response = client.newCall(request).await()
         etag = response.header("etag")
         val body = response.body?.text()
@@ -46,7 +46,6 @@ class RemoteConfigRepoImpl(private val client: OkHttpClient) : RemoteConfigRepo 
     }
 
     override suspend fun updateRemoteConfig(remoteConfig: RemoteConfig) {
-        val url = "https://firebaseremoteconfig.googleapis.com/v1/projects/${projectId}/remoteConfig"
         val jsonString = gson.toJson(remoteConfig)
         val requestBody = jsonString.toRequestBody()
         var request = Request.Builder()
