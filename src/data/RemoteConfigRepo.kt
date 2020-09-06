@@ -94,7 +94,7 @@ class RemoteConfigRepoImpl(private val client: OkHttpClient, private val url: St
             .header("Authorization", "Bearer ${getAccessToken()}")
             .header("If-Match", etag!!)
             .build()
-        var response = client.newCall(request).await()
+        val response = client.newCall(request).await()
         if (response.isSuccessful) {
             if (response.header("etag") == null) {
                 throw FirebaseException(
@@ -104,7 +104,8 @@ class RemoteConfigRepoImpl(private val client: OkHttpClient, private val url: St
                 )
             }
             request = request.newBuilder().url(url).build()
-            response = client.newCall(request).await()
+            client.newCall(request).await()
+            loadFromRemote() // We need to refresh the cached data
             println("Remote config update successfully")
         }
     }
@@ -121,7 +122,13 @@ class RemoteConfigRepoImpl(private val client: OkHttpClient, private val url: St
     }
 
     override suspend fun checkExamPeriod() {
-        TODO("Not yet implemented")
+        val config = getRemoteConfig()
+        if (areExamsOngoing()) {
+            config.enableExamTimetableAvailability()
+        } else {
+            config.disableExamTimetableAvailability()
+        }
+        updateRemoteConfig(config)
     }
 
     private fun getAccessToken(): String {

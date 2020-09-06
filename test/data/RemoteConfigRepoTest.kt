@@ -104,4 +104,52 @@ class RemoteConfigRepoTest : AutoCloseKoinTest() {
         assertThat(remoteConfigRepo.areExamsOngoing(), `is`(true))
         server.shutdown()
     }
+
+    @Test
+    fun `checkExamPeriod updates availability of exams`(): Unit = runBlocking {
+        val today = LocalDate.now(ZoneId.of("Africa/Nairobi"))
+        val startDate = today.minusDays(2)
+        val endDate = today.plusDays(2)
+        val response = """
+            {
+              "parameters": {
+                "exam_period": {
+                  "defaultValue": {
+                    "value": "{\"start_date\":\"${formatter.format(startDate)}\",\"end_date\":\"${formatter.format(
+            endDate
+        )}\"}"
+                  }
+                },
+                "exam_timetable_available": {
+                  "defaultValue": {
+                    "value": "false"
+                  }
+                }
+              }
+            }
+        """.trimIndent().gzip()
+        startKoin {
+            modules(appModules)
+        }
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setBody(Buffer().write(response)).setHeader("etag", "etag"))
+        server.enqueue(MockResponse().setBody(Buffer().write("{}".gzip())).setHeader("etag", "etag"))
+        server.enqueue(MockResponse().setResponseCode(200))
+        server.enqueue(MockResponse().setBody(Buffer().write(response)))
+        server.start()
+        declare(named("firebaseUrl")) {
+            server.url("/").toString()
+        }
+
+        remoteConfigRepo.checkExamPeriod()
+        var request = server.takeRequest()
+        assertThat(request.method, `is`("GET")) // First fetch
+        request = server.takeRequest()
+        assertThat(request.method, `is`("PUT")) // Validate remote config
+        request = server.takeRequest()
+        assertThat(request.method, `is`("PUT")) // Update remote config
+        request = server.takeRequest()
+        assertThat(request.method, `is`("GET")) //Fetch update remote config
+        server.shutdown()
+    }
 }

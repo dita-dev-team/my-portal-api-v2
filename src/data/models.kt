@@ -60,3 +60,11 @@ fun RemoteConfig.getExamPeriod(): ExamPeriod {
     val value = parameters.examPeriod.defaultValue.value
     return gson.fromJson(value, ExamPeriod::class.java)
 }
+
+fun RemoteConfig.disableExamTimetableAvailability() {
+    parameters.examTimetableAvailable.defaultValue.value = "false"
+}
+
+fun RemoteConfig.enableExamTimetableAvailability() {
+    parameters.examTimetableAvailable.defaultValue.value = "true"
+}
