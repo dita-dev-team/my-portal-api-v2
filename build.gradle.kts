@@ -117,6 +117,7 @@ dependencies {
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.koin:koin-test:$koin_version")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.9")
+    testImplementation("io.mockk:mockk:1.10.0")
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")

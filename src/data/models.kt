@@ -1,6 +1,8 @@
 package dita.dev.data
 
+import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
+import java.util.*
 
 data class RemoteConfig(
     @SerializedName("parameters") val parameters: Parameters,
@@ -22,7 +24,7 @@ data class Parameters(
     @SerializedName("feedback_email") val feedbackEmail: FeedbackEmail,
     @SerializedName("myportal_web_url") val webUrl: MyPortalWebUrl,
     @SerializedName("exam_timetable_available") val examTimetableAvailable: ExamTimetableAvailable,
-    @SerializedName("exam_period") val examPeriod: ExamPeriod,
+    @SerializedName("exam_period") val examPeriod: _ExamPeriod,
     @SerializedName("current_calendar") val currentCalendar: CurrentCalendar,
 )
 
@@ -38,7 +40,7 @@ data class ExamTimetableAvailable(
     @SerializedName("defaultValue") val defaultValue: DefaultValue
 )
 
-data class ExamPeriod(
+data class _ExamPeriod(
     @SerializedName("defaultValue") val defaultValue: DefaultValue,
     @SerializedName("description") val description: String
 )
@@ -47,3 +49,14 @@ data class CurrentCalendar(
     @SerializedName("defaultValue") val defaultValue: DefaultValue,
     @SerializedName("description") val description: String
 )
+
+data class ExamPeriod(
+    @SerializedName("start_date") val startDate: Date,
+    @SerializedName("end_date") val endDate: Date
+)
+
+fun RemoteConfig.getExamPeriod(): ExamPeriod {
+    val gson = GsonBuilder().setDateFormat("dd/MM/yy").create()
+    val value = parameters.examPeriod.defaultValue.value
+    return gson.fromJson(value, ExamPeriod::class.java)
+}
