@@ -17,6 +17,7 @@ val kotlin_version: String by project
 val logback_version: String by project
 val koin_version: String by project
 val project_id: String by project
+val okhttp_version: String by project
 
 plugins {
     application
@@ -107,8 +108,8 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
-    implementation("com.squareup.okhttp3:okhttp:4.8.1")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.8.1")
+    implementation("com.squareup.okhttp3:okhttp:${okhttp_version}")
+    implementation("com.squareup.okhttp3:logging-interceptor:${okhttp_version}")
     implementation("com.squareup.moshi:moshi-kotlin:1.9.3")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("org.koin:koin-ktor:$koin_version")
@@ -118,6 +119,7 @@ dependencies {
     testImplementation("org.koin:koin-test:$koin_version")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.9")
     testImplementation("io.mockk:mockk:1.10.0")
+    testImplementation("com.squareup.okhttp3:mockwebserver:${okhttp_version}")
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")

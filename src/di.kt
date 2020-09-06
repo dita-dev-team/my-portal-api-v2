@@ -7,6 +7,7 @@ import dita.dev.data.RemoteConfigRepo
 import dita.dev.data.RemoteConfigRepoImpl
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import java.io.FileInputStream
 
@@ -30,6 +31,11 @@ val appModules = module {
     }
 
     single<RemoteConfigRepo> {
-        RemoteConfigRepoImpl(get())
+        RemoteConfigRepoImpl(get(), get(named("firebaseUrl")))
+    }
+
+    single(named("firebaseUrl")) {
+        val projectId = System.getProperty("project_id")
+        "https://firebaseremoteconfig.googleapis.com/v1/projects/${projectId}/remoteConfig"
     }
 }

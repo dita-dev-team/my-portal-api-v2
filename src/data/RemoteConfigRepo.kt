@@ -23,11 +23,9 @@ interface RemoteConfigRepo {
 
 }
 
-class RemoteConfigRepoImpl(private val client: OkHttpClient) : RemoteConfigRepo {
+class RemoteConfigRepoImpl(private val client: OkHttpClient, private val url: String) : RemoteConfigRepo {
 
-    private val projectId = System.getProperty("project_id")
     private val gson = GsonBuilder().serializeNulls().disableHtmlEscaping().create()
-    private val url = "https://firebaseremoteconfig.googleapis.com/v1/projects/${projectId}/remoteConfig"
 
 
     private var etag: String? = null
