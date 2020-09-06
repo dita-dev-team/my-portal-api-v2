@@ -8,6 +8,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.FileInputStream
+import java.util.*
 
 interface RemoteConfigRepo {
     suspend fun getRemoteConfig(): RemoteConfig
@@ -22,11 +23,9 @@ interface RemoteConfigRepo {
 
 }
 
-class RemoteConfigRepoImpl(private val client: OkHttpClient) : RemoteConfigRepo {
+class RemoteConfigRepoImpl(private val client: OkHttpClient, private val url: String) : RemoteConfigRepo {
 
-    private val projectId = System.getProperty("project_id")
     private val gson = GsonBuilder().serializeNulls().disableHtmlEscaping().create()
-    private val url = "https://firebaseremoteconfig.googleapis.com/v1/projects/${projectId}/remoteConfig"
 
 
     private var etag: String? = null
@@ -72,7 +71,10 @@ class RemoteConfigRepoImpl(private val client: OkHttpClient) : RemoteConfigRepo 
     }
 
     override suspend fun areExamsOngoing(): Boolean {
-        TODO("Not yet implemented")
+        val config = getRemoteConfig()
+        val examPeriod = config.getExamPeriod()
+        val now = Date()
+        return examPeriod.startDate.before(now) && examPeriod.endDate.after(now)
     }
 
     override suspend fun updateCurrentCalendar() {
