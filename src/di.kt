@@ -3,6 +3,9 @@ package dita.dev
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
+import com.jaunt.UserAgent
+import dita.dev.data.CalendarProvider
+import dita.dev.data.PortalCalendarProvider
 import dita.dev.data.RemoteConfigRepo
 import dita.dev.data.RemoteConfigRepoImpl
 import okhttp3.OkHttpClient
@@ -38,4 +41,14 @@ val appModules = module {
         val projectId = System.getProperty("project_id")
         "https://firebaseremoteconfig.googleapis.com/v1/projects/${projectId}/remoteConfig"
     }
+
+    single {
+        val ua = UserAgent()
+        ua
+    }
+
+    single<CalendarProvider> {
+        PortalCalendarProvider(get())
+    }
+
 }
