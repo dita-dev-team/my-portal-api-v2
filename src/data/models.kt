@@ -4,6 +4,8 @@ import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
+open class DateRange(val start: Date, val end: Date)
+
 data class RemoteConfig(
     @SerializedName("parameters") val parameters: Parameters,
     @SerializedName("version") val version: Version
@@ -53,7 +55,7 @@ data class CurrentCalendar(
 data class ExamPeriod(
     @SerializedName("start_date") val startDate: Date,
     @SerializedName("end_date") val endDate: Date
-)
+) : DateRange(startDate, endDate)
 
 fun RemoteConfig.getExamPeriod(): ExamPeriod {
     val gson = GsonBuilder().setDateFormat("dd/MM/yy").create()
@@ -68,3 +70,9 @@ fun RemoteConfig.disableExamTimetableAvailability() {
 fun RemoteConfig.enableExamTimetableAvailability() {
     parameters.examTimetableAvailable.defaultValue.value = "true"
 }
+
+
+data class Calendar(val name: String?, val period: DateRange?)
+
+
+fun Calendar.isEmpty(): Boolean = period == null

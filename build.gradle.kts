@@ -116,6 +116,7 @@ dependencies {
     implementation("org.koin:koin-logger-slf4j:$koin_version")
     implementation("com.google.firebase:firebase-admin:7.0.0")
     implementation("com.github.kittinunf.fuse:fuse:1.0.0-beta3")
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("jaunt1.6.0.jar"))))
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.koin:koin-test:$koin_version")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.9")
