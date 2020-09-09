@@ -71,6 +71,9 @@ fun RemoteConfig.enableExamTimetableAvailability() {
     parameters.examTimetableAvailable.defaultValue.value = "true"
 }
 
+fun RemoteConfig.setCurrentCalendar(calendar: String) {
+    parameters.currentCalendar.defaultValue.value = calendar
+}
 
 data class Calendar(val name: String?, val period: DateRange?)
 

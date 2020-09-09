@@ -1,6 +1,7 @@
 package data
 
 import dita.dev.appModules
+import dita.dev.data.CalendarProvider
 import dita.dev.data.RemoteConfigRepo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -35,6 +36,7 @@ fun String.gzip(): ByteArray {
 @ExperimentalCoroutinesApi
 class RemoteConfigRepoTest : AutoCloseKoinTest() {
     private val remoteConfigRepo: RemoteConfigRepo by inject()
+    private val calendarProvider: CalendarProvider by inject()
 
 
     private val formatter = DateTimeFormatter.ofPattern("dd/MM/yy")

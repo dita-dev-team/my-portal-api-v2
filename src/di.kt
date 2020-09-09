@@ -34,7 +34,7 @@ val appModules = module {
     }
 
     single<RemoteConfigRepo> {
-        RemoteConfigRepoImpl(get(), get(named("firebaseUrl")))
+        RemoteConfigRepoImpl(get(), get(named("firebaseUrl")), get())
     }
 
     single(named("firebaseUrl")) {

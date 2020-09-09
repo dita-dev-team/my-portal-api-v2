@@ -32,7 +32,10 @@ interface RemoteConfigRepo {
 }
 
 
-class RemoteConfigRepoImpl(private val client: OkHttpClient, private val url: String) : RemoteConfigRepo {
+class RemoteConfigRepoImpl(
+    private val client: OkHttpClient, private val url: String,
+    private val calendarProvider: CalendarProvider
+) : RemoteConfigRepo {
 
     private val gson = GsonBuilder().serializeNulls().disableHtmlEscaping().create()
     private val tempDir = createTempDir().absolutePath
@@ -118,7 +121,12 @@ class RemoteConfigRepoImpl(private val client: OkHttpClient, private val url: St
     }
 
     override suspend fun updateCurrentCalendar() {
-        TODO("Not yet implemented")
+        val calendar = calendarProvider.getCalendar()
+        calendar.name?.let {
+            val config = getRemoteConfig()
+            config.setCurrentCalendar(it)
+            updateRemoteConfig(config)
+        }
     }
 
     override suspend fun checkExamPeriod() {
