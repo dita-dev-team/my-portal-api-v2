@@ -93,10 +93,10 @@ fun printResults(desc: TestDescriptor, result: TestResult) {
         }
         val testResultLine = "|  $output  |"
         val repeatLength = testResultLine.length
-        val seperationLine = "-".repeat(repeatLength)
-        println(seperationLine)
+        val separationLine = "-".repeat(repeatLength)
+        println(separationLine)
         println(testResultLine)
-        println(seperationLine)
+        println(separationLine)
     }
 }
 
@@ -108,6 +108,7 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
+    implementation("io.ktor:ktor-auth:$ktor_version")
     implementation("com.squareup.okhttp3:okhttp:${okhttp_version}")
     implementation("com.squareup.okhttp3:logging-interceptor:${okhttp_version}")
     implementation("com.squareup.moshi:moshi-kotlin:1.9.3")
