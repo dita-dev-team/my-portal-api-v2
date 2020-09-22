@@ -4,6 +4,7 @@ import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import java.util.*
+import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class ExcelParserTest {
@@ -28,7 +29,7 @@ class ExcelParserTest {
     }
 
     @Test
-    fun `test sanitize returns units`() {
+    fun `test sanitize`() {
         val excelParser = ExcelParser()
         var result = excelParser.sanitize("ACS101A")
         assertThat(result, `is`(listOf("ACS101A")))
@@ -57,5 +58,48 @@ class ExcelParserTest {
 
         result = excelParser.sanitize("ACS261/MIS224B")
         assertThat(result, `is`(listOf("ACS261B", "MIS224B")))
+    }
+
+    @Test
+    fun `test formatCourseTitle`() {
+        val excelParser = ExcelParser()
+        var result = excelParser.formatCourseTitle("ACS-113")
+        assertEquals(result, "ACS-113")
+
+        result = excelParser.formatCourseTitle("ACS113")
+        assertEquals(result, "ACS-113")
+
+        result = excelParser.formatCourseTitle("DICT114")
+        assertEquals(result, "DICT-114")
+
+    }
+
+    @Test
+    fun `test getShift`() {
+        val excelParser = ExcelParser()
+        var result = excelParser.getShift("Athi-River Day")
+        assertEquals(result, "athi")
+
+        result = excelParser.getShift("Nairobi Evening")
+        assertEquals(result, "evening")
+
+        result = excelParser.getShift("Nairobi Day")
+        assertEquals(result, "day")
+    }
+
+    @Test
+    fun `test split`() {
+        val excelParser = ExcelParser()
+        var result = excelParser.split("ACS-113")
+        assertThat(result, `is`(listOf("ACS", "113")))
+
+        result = excelParser.split("ACS 113")
+        assertThat(result, `is`(listOf("ACS", "113")))
+
+        result = excelParser.split("ACS113")
+        assertThat(result, `is`(listOf("ACS", "113")))
+
+        result = excelParser.split("DICT114")
+        assertThat(result, `is`(listOf("DICT", "114")))
     }
 }

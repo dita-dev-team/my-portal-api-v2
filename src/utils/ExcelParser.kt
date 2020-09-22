@@ -17,6 +17,44 @@ class ExcelParser {
         return code + section
     }
 
+    fun split(text: String): List<String> {
+        return when {
+            text.contains("-") -> {
+                text.split("-")
+            }
+            text.contains(" ") -> {
+                text.split(" ")
+            }
+            else -> {
+                val initLen = if (text.matches("^[a-z]{3}\\d*".toRegex(RegexOption.IGNORE_CASE))) 3 else 4
+                listOf(text.substring(0, initLen), text.substring(initLen))
+            }
+        }
+    }
+
+    fun getShift(text: String): String {
+        return when {
+            text.contains("athi", true) -> {
+                "athi"
+            }
+            text.contains("evening", true) -> {
+                "evening"
+            }
+            else -> {
+                "day"
+            }
+        }
+    }
+
+    fun formatCourseTitle(text: String): String {
+        return if (text.contains("-")) {
+            text
+        } else {
+            val initLen = if (text.matches("^[a-z]{3}\\d*".toRegex(RegexOption.IGNORE_CASE))) 3 else 4
+            text.substring(0, initLen) + "-" + text.substring(initLen)
+        }
+    }
+
     fun sanitize(text: String): List<String> {
         val coursesArray = mutableListOf<String>()
         var courseCode = text.replace("\\s".toRegex(RegexOption.MULTILINE), "").replace("&".toRegex(), "/")
