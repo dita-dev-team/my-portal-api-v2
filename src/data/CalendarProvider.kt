@@ -1,10 +1,9 @@
 package dita.dev.data
 
-import com.jaunt.Document
-import com.jaunt.HttpRequest
-import com.jaunt.NotFound
-import com.jaunt.UserAgent
-import com.jaunt.util.MultiMap
+import org.jsoup.Jsoup
+import org.jsoup.helper.HttpConnection
+import org.jsoup.nodes.Document
+import org.jsoup.nodes.FormElement
 import java.time.LocalDate
 import java.time.Month
 import java.time.Year
@@ -17,19 +16,25 @@ interface CalendarProvider {
     fun getCalendar(): Calendar
 }
 
-class PortalCalendarProvider(private val ua: UserAgent) : CalendarProvider {
+class PortalCalendarProvider : CalendarProvider {
 
     private val baseUrl = "http://portal.daystar.ac.ke/Common/CourseSchedule.aspx"
     private val userAgent =
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36"
+    private var cookies: MutableMap<String, String>? = null
 
     override fun getCalendar(): Calendar {
-        val request = HttpRequest.makeGET(baseUrl, MultiMap(), mutableMapOf("User-Agent" to userAgent))
-        val response = ua.send(request)
-        val select = response.findFirst("<select id=_ctl0_PlaceHolderMain__ctl0_cbTerm>")
-        val option = select.findFirst("<option selected=selected>")
-        val text = option.textContent.trim()
-        val period = getSemesterPeriod(response)
+        val request = Jsoup.connect(baseUrl)
+            .followRedirects(true)
+            .timeout(600 * 1000)
+            .userAgent(userAgent)
+        val response = request.execute()
+        cookies = response.cookies()
+        val document = response.parse()
+        val select = document.selectFirst("select#_ctl0_PlaceHolderMain__ctl0_cbTerm")
+        val option = select.selectFirst("option[selected=selected]")
+        val text = option.text().trim()
+        val period = getSemesterPeriod(document)
         val name: String? = if (period != null) {
             getNameFromPeriod(period)
         } else {
@@ -73,12 +78,19 @@ class PortalCalendarProvider(private val ua: UserAgent) : CalendarProvider {
     }
 
     private fun getSemesterPeriod(doc: Document): DateRange? {
-        val form = doc.getForm("<form name=aspnetForm>")
-        form.set("__EVENTTARGET", "_ctl0\$PlaceHolderMain\$_ctl0\$btnSearch")
-        val response = ua.send(form.request)
         return try {
-            val element = response.findFirst("<span id=.*DateRange_CourseList$>")
-            val dateRangeString = element.textContent.trim()
+            val form = doc.selectFirst("#aspnetForm") as FormElement
+            val data = form.formData()
+            data.removeAt(0)
+            data.add(0, HttpConnection.KeyVal.create("__EVENTTARGET", "_ctl0\$PlaceHolderMain\$_ctl0\$btnSearch"))
+            val request = Jsoup.connect(baseUrl)
+                .followRedirects(true)
+                .timeout(600 * 1000)
+                .userAgent(userAgent)
+                .cookies(cookies)
+            val response = request.data(data).post()
+            val element = response.selectFirst("span[id$=DateRange_CourseList]")
+            val dateRangeString = element.text().trim()
             val reg = "(\\d{1,2}/\\d{1,2}/\\d{4})".toRegex()
             val matches = reg.findAll(dateRangeString)
             val start = matches.first()
@@ -87,7 +99,8 @@ class PortalCalendarProvider(private val ua: UserAgent) : CalendarProvider {
             val startDate = LocalDate.from(formatter.parse(start.value))
             val endDate = LocalDate.from(formatter.parse(end.value))
             DateRange(startDate.toNormalDate(), endDate.toNormalDate())
-        } catch (e: NotFound) {
+        } catch (e: Exception) {
+            println(e)
             null
         }
     }

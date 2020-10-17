@@ -119,7 +119,7 @@ dependencies {
     implementation("com.github.kittinunf.fuse:fuse:1.0.0-beta3")
     implementation("org.apache.poi:poi:4.1.2")
     implementation("org.apache.poi:poi-ooxml:4.1.2")
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("jaunt1.6.0.jar"))))
+    implementation("org.jsoup:jsoup:1.13.1")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.koin:koin-test:$koin_version")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.9")
