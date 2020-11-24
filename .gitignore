@@ -7,3 +7,4 @@
 *.iws
 google-credentials.json
 gradle-local.properties
+firebase.js

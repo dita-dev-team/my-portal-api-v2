@@ -109,6 +109,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("io.ktor:ktor-auth:$ktor_version")
+    implementation("io.ktor:ktor-pebble:$ktor_version")
     implementation("com.squareup.okhttp3:okhttp:${okhttp_version}")
     implementation("com.squareup.okhttp3:logging-interceptor:${okhttp_version}")
     implementation("com.squareup.moshi:moshi-kotlin:1.9.3")
