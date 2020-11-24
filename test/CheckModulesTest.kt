@@ -9,7 +9,6 @@ class CheckModulesTest {
 
     @Test
     fun `check modules`() = checkModules {
-        println(System.getenv("PROJECT_ID"))
         modules(appModules)
     }
 }

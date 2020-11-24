@@ -81,3 +81,5 @@ data class Calendar(val name: String?, val period: DateRange?)
 fun Calendar.isEmpty(): Boolean = period == null
 
 data class Exam(val name: String, val room: String, val date: Long, val shift: String)
+
+data class User(val uid: String, val email: String)

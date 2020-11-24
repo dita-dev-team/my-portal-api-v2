@@ -3,10 +3,8 @@ package dita.dev
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
-import dita.dev.data.CalendarProvider
-import dita.dev.data.PortalCalendarProvider
-import dita.dev.data.RemoteConfigRepo
-import dita.dev.data.RemoteConfigRepoImpl
+import com.google.firebase.auth.FirebaseAuth
+import dita.dev.data.*
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.core.qualifier.named
@@ -21,6 +19,10 @@ val appModules = module {
             .build()
 
         FirebaseApp.initializeApp(options)
+    }
+
+    single {
+        FirebaseAuth.getInstance(get())
     }
 
     single {
@@ -45,4 +47,7 @@ val appModules = module {
         PortalCalendarProvider()
     }
 
+    single<AuthRepo> {
+        AuthRepoImpl(get())
+    }
 }
