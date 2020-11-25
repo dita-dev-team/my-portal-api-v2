@@ -10,7 +10,7 @@ function sendToBackend(idToken) {
 
 const unsubscribe = firebase.auth().onAuthStateChanged(async (firebaseUser) => {
     console.log('user state changed')
-    unsubscribe()
+    // unsubscribe()
     if (firebaseUser) {
         try {
             const idToken = await firebaseUser.getIdToken()
@@ -27,8 +27,6 @@ async function login() {
     const provider = new firebase.auth.GoogleAuthProvider()
     try {
         const result = await firebase.auth().signInWithPopup(provider)
-        sendToBackend(credential.idToken)
-        const credential = firebase.auth.GoogleAuthProvider.credential(result.credential.idToken)
     } catch (error) {
         console.error(error)
     }

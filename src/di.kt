@@ -15,7 +15,7 @@ val appModules = module {
     single {
         val options = FirebaseOptions.builder()
             .setCredentials(GoogleCredentials.fromStream(FileInputStream("google-credentials.json")))
-            .setProjectId(System.getProperty("project_id"))
+            .setProjectId(FirebaseConfig.projectId)
             .build()
 
         FirebaseApp.initializeApp(options)

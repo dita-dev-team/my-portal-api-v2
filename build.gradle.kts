@@ -32,6 +32,19 @@ application {
     mainClassName = "io.ktor.server.netty.EngineMain"
 }
 
+tasks.withType<JavaExec> {
+    val envFile = rootProject.file(".env")
+    if (envFile.exists()) {
+        envFile.readLines().forEach {
+            val line = it.trim()
+            val (key, value) = line.split("=")
+            environment(key, value)
+        }
+    } else {
+        println(".env file not found")
+    }
+}
+
 tasks.withType<Jar> {
     manifest {
         attributes(
@@ -43,7 +56,16 @@ tasks.withType<Jar> {
 }
 
 tasks.withType<Test> {
-    systemProperty("project_id", project_id)
+    val envFile = rootProject.file(".env")
+    if (envFile.exists()) {
+        envFile.readLines().forEach {
+            val line = it.trim()
+            val (key, value) = line.split("=")
+            environment(key, value)
+        }
+    } else {
+        println(".env file not found")
+    }
     testLogging {
         events = setOf(
             org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
