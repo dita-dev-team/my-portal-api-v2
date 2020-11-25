@@ -14,9 +14,10 @@ jobs:
     - name: Setup environment variables
       env: # Or as an environment variable
         SERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT }}
-        GRADLE_LOCAL_PROPERTIES: ${{ secrets.GRADLE_LOCAL_PROPERTIES }}
-      run: echo $SERVICE_ACCOUNT > google-credentials.json && echo $GRADLE_LOCAL_PROPERTIES > gradle-local.properties
+      run: echo $SERVICE_ACCOUNT > google-credentials.json
     - uses: eskatos/gradle-command-action@v1
+      env:
+        FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
       with:
         wrapper-cache-enabled: true
         dependencies-cache-enabled: true

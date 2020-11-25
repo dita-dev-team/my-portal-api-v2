@@ -1,10 +1,7 @@
 package dita.dev
 
 import com.mitchellbosecke.pebble.loader.ClasspathLoader
-import dita.dev.data.AuthRepo
-import dita.dev.data.RemoteConfigRepo
-import dita.dev.data.TokenValid
-import dita.dev.data.UserSession
+import dita.dev.data.*
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*
@@ -119,12 +116,12 @@ fun Application.main(testing: Boolean = false) {
             }
 
             get {
-                call.respond(PebbleContent("index.peb", emptyMap()))
+                call.respond(PebbleContent("index.peb", FirebaseConfig.generateModel(emptyMap())))
             }
 
             route("login") {
                 get {
-                    call.respond(PebbleContent("login.peb", mapOf("clientId" to googleClientId)))
+                    call.respond(PebbleContent("login.peb", FirebaseConfig.generateModel(emptyMap())))
                 }
 
                 post {
