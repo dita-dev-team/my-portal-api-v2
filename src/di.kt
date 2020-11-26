@@ -4,6 +4,7 @@ import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.cloud.FirestoreClient
 import dita.dev.data.*
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -23,6 +24,10 @@ val appModules = module {
 
     single {
         FirebaseAuth.getInstance(get())
+    }
+
+    single {
+        FirestoreClient.getFirestore(get())
     }
 
     single {
@@ -50,4 +55,6 @@ val appModules = module {
     single<AuthRepo> {
         AuthRepoImpl(get())
     }
+
+    single<ExamsRepo> { ExamsRepoImpl(get()) }
 }

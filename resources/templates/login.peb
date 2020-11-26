@@ -1,30 +1,29 @@
 {% extends 'base.peb' %}
 
 {% block body %}
-<div class="container h-100 d-flex justify-content-center align-items-center">
+<div id="app" class="container h-100 d-flex justify-content-center align-items-center">
     <div class="row">
         <div class="col-md-12">
-            <div class="card">
-                <div class="card-body login-card">
-                    <img class="logo mx-auto d-block" src="/static/logo.png" alt="My Portal logo"/>
-                    <div class="g-sign-in-button mx-auto d-block mt-4" onclick="login()">
-                        <div class="content-wrapper">
-                            <div class="logo-wrapper">
-                                <img src="https://developers.google.com/identity/images/g-logo.png">
+            <b-overlay :show="isLoading" :opacity="0.75" rounded="sm">
+                <div class="card">
+                    <div class="card-body login-card">
+                        <img class="logo mx-auto d-block" src="/static/logo.png" alt="My Portal logo"/>
+                        <div class="g-sign-in-button mx-auto d-block mt-4" @click="login">
+                            <div class="content-wrapper">
+                                <div class="logo-wrapper">
+                                    <img src="https://developers.google.com/identity/images/g-logo.png">
+                                </div>
+                                <span class="text-container">
+                                  <span>Sign in with Google</span>
+                                </span>
                             </div>
-                            <span class="text-container">
-                              <span>Sign in with Google</span>
-                            </span>
                         </div>
                     </div>
                 </div>
-            </div>
+            </b-overlay>
         </div>
     </div>
 </div>
 
-{% endblock %}
-{% block extra_js %}
-<script src="/static/js/login.js"></script>
 {% endblock %}
 

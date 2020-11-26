@@ -1,0 +1,39 @@
+{% set page = "exams" %}
+
+{% extends 'base.peb' %}
+
+{% block content %}
+<b-overlay :show="isLoading" :opacity="0.75" rounded="sm">
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">No. of exam schedules</h5>
+                        <p class="card-text"><strong>{{ examsScheduleCount }}</strong></p>
+                        {% if examsScheduleCount > 0 %}
+                            <b-button variant="danger" @click="clearExamSchedule">Clear</b-button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Upload exam schedule</h5>
+                        <b-form-file
+                                v-model="examFile"
+                                :state="Boolean(examFile)"
+                                placeholder="Choose a file or drop it here..."
+                                drop-placeholder="Drop file here..."
+                                accept=".xls, .xlsx"
+                                autofocus
+                        ></b-form-file>
+                        <b-button class="mt-4" v-if="examFile !== null" @click="uploadSchedule">Upload</b-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</b-overlay>
+{% endblock %}
