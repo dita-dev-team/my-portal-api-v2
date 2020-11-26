@@ -385,6 +385,32 @@ class ExcelParserTest {
         stream.close()
     }
 
+    @Test
+    fun `August 2020 is parsed successfully`() {
+        val stream = File("test/files/excel-new11.xlsx").inputStream()
+        val excelParser = ExcelParser()
+        excelParser.extractData(stream)
+        assertTrue(excelParser.units.isNotEmpty())
+        assertTrue(
+            hasNames(
+                excelParser.units,
+                "POL-220A",
+                "MUS-319B",
+                "MAK-423A",
+                "DICT-103A",
+                "COM-408DA",
+                "DBM-020T",
+                "PSY-214T",
+                "SOC-314X",
+                "MCP-650X",
+                "GRA-614X",
+                "COM-302X",
+                "CHD-613X",
+            )
+        )
+        stream.close()
+    }
+
     private fun hasNames(list: List<Exam>, vararg names: String): Boolean {
         val size = names.size
         val set = names.toSet()

@@ -2,9 +2,11 @@ package dita.dev
 
 import com.mitchellbosecke.pebble.loader.ClasspathLoader
 import dita.dev.data.*
+import dita.dev.utils.ExcelParser
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*
+import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.pebble.*
 import io.ktor.request.*
@@ -16,7 +18,9 @@ import org.koin.core.logger.Level
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.inject
 import org.koin.logger.slf4jLogger
+import java.io.File
 import java.security.SecureRandom
+import java.util.*
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -69,8 +73,7 @@ fun Application.main(testing: Boolean = false) {
 
     val remoteConfigRepo by inject<RemoteConfigRepo>()
     val authRepo by inject<AuthRepo>()
-
-    val googleClientId = System.getProperty("client_id")
+    val examsRepo by inject<ExamsRepo>()
 
     routing {
         static("static") {
@@ -116,7 +119,7 @@ fun Application.main(testing: Boolean = false) {
             }
 
             get {
-                call.respond(PebbleContent("index.peb", FirebaseConfig.generateModel(emptyMap())))
+                call.respond(getLoggedInPebbleContent("index.peb"))
             }
 
             route("login") {
@@ -157,6 +160,51 @@ fun Application.main(testing: Boolean = false) {
                     call.respondRedirect("/app")
                 }
             }
+
+            route("exams") {
+                get {
+                    val totalExamSchedules = examsRepo.getExamScheduleCount()
+                    val model = mapOf(
+                        "examsScheduleCount" to totalExamSchedules
+                    )
+                    call.respond(getLoggedInPebbleContent("exams.peb", model))
+                }
+
+                route("upload") {
+                    post {
+                        val parser = ExcelParser()
+                        val multipart = call.receiveMultipart()
+                        multipart.forEachPart { part ->
+                            when (part) {
+                                is PartData.FileItem -> {
+                                    val ext = File(part.originalFileName).extension
+                                    if (ext == "xls" || ext == "xlsx") {
+                                        part.streamProvider().use { input ->
+                                            parser.extractData(input)
+                                        }
+                                    }
+                                }
+                                else -> {
+                                }
+                            }
+
+                            part.dispose()
+                        }
+                        if (parser.units.isNotEmpty()) {
+                            examsRepo.uploadExamSchedule(parser.units)
+                        }
+                        call.respondText("Ok")
+                    }
+
+                }
+
+                route("delete") {
+                    post {
+                        examsRepo.clearExamSchedule()
+                        call.respondText("Ok")
+                    }
+                }
+            }
         }
 
 
@@ -180,3 +228,9 @@ fun ApplicationEnvironment.getConfigValue(key: String, default: String): String 
     this.config.propertyOrNull(key)?.getString() ?: default
 
 
+fun getLoggedInPebbleContent(template: String, model: Map<String, Any> = emptyMap()): PebbleContent {
+    val finalMap = mutableMapOf<String, Any>()
+    finalMap.putAll(FirebaseConfig.generateModel(mapOf("isLoggedIn" to true)))
+    finalMap.putAll(model)
+    return PebbleContent(template, finalMap)
+}

@@ -18,6 +18,7 @@ val logback_version: String by project
 val koin_version: String by project
 val project_id: String by project
 val okhttp_version: String by project
+val coroutines_version: String by project
 
 plugins {
     application
@@ -143,9 +144,10 @@ dependencies {
     implementation("org.apache.poi:poi:4.1.2")
     implementation("org.apache.poi:poi-ooxml:4.1.2")
     implementation("org.jsoup:jsoup:1.13.1")
+
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.koin:koin-test:$koin_version")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.9")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${coroutines_version}")
     testImplementation("io.mockk:mockk:1.10.0")
     testImplementation("com.squareup.okhttp3:mockwebserver:${okhttp_version}")
 }
