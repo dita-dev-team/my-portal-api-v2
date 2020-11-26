@@ -40,7 +40,11 @@ const app = new Vue({
             const params = new URLSearchParams()
             params.append('id_token', idToken)
             try {
-                const res = await axios.post(window.location.pathname, params)
+                const res = await axios.post(window.location.pathname, params, {
+                    headers: {
+                        'X-My-Portal': ''
+                    }
+                })
                 if (res.status === 200 || res.status === 302) {
                     location.reload()
                 }
@@ -60,7 +64,11 @@ const app = new Vue({
             if (ret === true) {
                 this.isLoading = true
                 try {
-                    await axios.post(`${window.location.pathname}/delete`)
+                    await axios.post(`${window.location.pathname}/delete`, {}, {
+                        headers: {
+                            'X-My-Portal': ''
+                        }
+                    })
                     this.$bvToast.toast(`Schedule cleared successfully`, {
                         autoHideDelay: 5000,
                         appendToast: false
@@ -85,7 +93,8 @@ const app = new Vue({
                 formData.append("file", this.examFile)
                 await axios.post(`${window.location.pathname}/upload`, formData, {
                     headers: {
-                        'Content-Type': 'multipart/form-data'
+                        'Content-Type': 'multipart/form-data',
+                        'X-My-Portal': ''
                     }
                 })
                 this.$bvToast.toast(`Exam schedule uploaded successfully`, {

@@ -39,6 +39,8 @@ class ViewsTest : AutoCloseKoinTest() {
         // User is redirected to login screen if id_token is missig in payload
         with(handleRequest(HttpMethod.Post, "/app/login") {
             addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+            addHeader("X-My-Portal", "")
+            addHeader("Origin", "http://localhost:8080")
         }) {
             assertEquals(io.ktor.http.HttpStatusCode.Found, response.status())
             assertEquals("/app/login", response.headers["Location"])
@@ -50,6 +52,8 @@ class ViewsTest : AutoCloseKoinTest() {
 
         with(handleRequest(HttpMethod.Post, "/app/login") {
             addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+            addHeader("X-My-Portal", "")
+            addHeader("Origin", "http://localhost:8080")
             setBody(listOf("id_token" to "test").formUrlEncode())
         }) {
             assertEquals(HttpStatusCode.Found, response.status())
@@ -64,6 +68,8 @@ class ViewsTest : AutoCloseKoinTest() {
 
         with(handleRequest(HttpMethod.Post, "/app/login") {
             addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+            addHeader("X-My-Portal", "")
+            addHeader("Origin", "http://localhost:8080")
             setBody(listOf("id_token" to "test").formUrlEncode())
         }) {
             assertEquals(HttpStatusCode.Found, response.status())
@@ -85,6 +91,8 @@ class ViewsTest : AutoCloseKoinTest() {
         cookiesSession {
             handleRequest(HttpMethod.Post, "/app/login") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+                addHeader("X-My-Portal", "")
+                addHeader("Origin", "http://localhost:8080")
                 setBody(listOf("id_token" to "test").formUrlEncode())
             }
 
@@ -108,6 +116,8 @@ class ViewsTest : AutoCloseKoinTest() {
         cookiesSession {
             handleRequest(HttpMethod.Post, "/app/login") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+                addHeader("X-My-Portal", "")
+                addHeader("Origin", "http://localhost:8080")
                 setBody(listOf("id_token" to "test").formUrlEncode())
             }
 
@@ -137,6 +147,8 @@ class ViewsTest : AutoCloseKoinTest() {
         cookiesSession {
             handleRequest(HttpMethod.Post, "/app/login") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+                addHeader("X-My-Portal", "")
+                addHeader("Origin", "http://localhost:8080")
                 setBody(listOf("id_token" to "test").formUrlEncode())
             }
 
@@ -164,6 +176,8 @@ class ViewsTest : AutoCloseKoinTest() {
         cookiesSession {
             handleRequest(HttpMethod.Post, "/app/login") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+                addHeader("X-My-Portal", "")
+                addHeader("Origin", "http://localhost:8080")
                 setBody(listOf("id_token" to "test").formUrlEncode())
             }
 
@@ -190,10 +204,15 @@ class ViewsTest : AutoCloseKoinTest() {
         cookiesSession {
             handleRequest(HttpMethod.Post, "/app/login") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+                addHeader("X-My-Portal", "")
+                addHeader("Origin", "http://localhost:8080")
                 setBody(listOf("id_token" to "test").formUrlEncode())
             }
 
-            with(handleRequest(HttpMethod.Post, "/app/exams/delete")) {
+            with(handleRequest(HttpMethod.Post, "/app/exams/delete") {
+                addHeader("X-My-Portal", "")
+                addHeader("Origin", "http://localhost:8080")
+            }) {
                 assertEquals(HttpStatusCode.OK, response.status())
             }
         }
@@ -218,12 +237,15 @@ class ViewsTest : AutoCloseKoinTest() {
         cookiesSession {
             handleRequest(HttpMethod.Post, "/app/login") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+                addHeader("X-My-Portal", "")
+                addHeader("Origin", "http://localhost:8080")
                 setBody(listOf("id_token" to "test").formUrlEncode())
             }
 
             with(handleRequest(HttpMethod.Post, "/app/exams/upload") {
                 val boundary = "***bbb***"
-
+                addHeader("X-My-Portal", "")
+                addHeader("Origin", "http://localhost:8080")
                 addHeader(
                     HttpHeaders.ContentType,
                     ContentType.MultiPart.FormData.withParameter("boundary", boundary).toString()
@@ -265,12 +287,16 @@ class ViewsTest : AutoCloseKoinTest() {
         cookiesSession {
             handleRequest(HttpMethod.Post, "/app/login") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+                addHeader("X-My-Portal", "")
+                addHeader("Origin", "http://localhost:8080")
                 setBody(listOf("id_token" to "test").formUrlEncode())
             }
 
             with(handleRequest(HttpMethod.Post, "/app/exams/upload") {
                 val boundary = "***bbb***"
 
+                addHeader("X-My-Portal", "")
+                addHeader("Origin", "http://localhost:8080")
                 addHeader(
                     HttpHeaders.ContentType,
                     ContentType.MultiPart.FormData.withParameter("boundary", boundary).toString()
