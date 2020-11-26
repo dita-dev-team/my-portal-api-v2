@@ -18,6 +18,10 @@ import org.koin.core.logger.Level
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.inject
 import org.koin.logger.slf4jLogger
+import org.mpierce.ktor.csrf.CsrfProtection
+import org.mpierce.ktor.csrf.HeaderPresent
+import org.mpierce.ktor.csrf.OriginMatchesKnownHost
+import org.mpierce.ktor.csrf.csrfProtection
 import java.io.File
 import java.security.SecureRandom
 import java.util.*
@@ -52,6 +56,13 @@ fun Application.main(testing: Boolean = false) {
         loader(ClasspathLoader().apply {
             prefix = "templates"
         })
+    }
+    val scheme = environment.getConfigValue("app.scheme", "http")
+    val host = environment.getConfigValue("app.domain", "localhost")
+    val port = if (host == "localhost") 8080 else null
+    install(CsrfProtection) {
+        validate(OriginMatchesKnownHost(scheme, host, port))
+        validate(HeaderPresent("X-My-Portal"))
     }
 
 //    val secretEncryptKey = hex(System.getProperty("session_encrypt_key"))
@@ -127,27 +138,29 @@ fun Application.main(testing: Boolean = false) {
                     call.respond(PebbleContent("login.peb", FirebaseConfig.generateModel(emptyMap())))
                 }
 
-                post {
-                    val payload = call.receiveParameters()
-                    if (payload["id_token"] == null) {
-                        call.respondRedirect("/app/login", permanent = false)
-                    } else {
-                        val isValid = authRepo.isTokenValid(payload["id_token"]!!)
-                        when (isValid) {
-                            is TokenValid.No -> {
-                                call.respondRedirect("/app/login", permanent = false)
-                            }
-                            is TokenValid.Yes -> {
-                                // Session should expire in 24 hours
-                                val expiresAt = System.currentTimeMillis() + (1000 * 60 * 60 * 24)
-                                call.sessions.set(
-                                    UserSession(
-                                        isValid.data.uid,
-                                        isValid.data.email,
-                                        expiresAt
+                csrfProtection {
+                    post {
+                        val payload = call.receiveParameters()
+                        if (payload["id_token"] == null) {
+                            call.respondRedirect("/app/login", permanent = false)
+                        } else {
+                            val isValid = authRepo.isTokenValid(payload["id_token"]!!)
+                            when (isValid) {
+                                is TokenValid.No -> {
+                                    call.respondRedirect("/app/login", permanent = false)
+                                }
+                                is TokenValid.Yes -> {
+                                    // Session should expire in 24 hours
+                                    val expiresAt = System.currentTimeMillis() + (1000 * 60 * 60 * 24)
+                                    call.sessions.set(
+                                        UserSession(
+                                            isValid.data.uid,
+                                            isValid.data.email,
+                                            expiresAt
+                                        )
                                     )
-                                )
-                                call.respondRedirect("/app", permanent = false)
+                                    call.respondRedirect("/app", permanent = false)
+                                }
                             }
                         }
                     }
@@ -171,37 +184,41 @@ fun Application.main(testing: Boolean = false) {
                 }
 
                 route("upload") {
-                    post {
-                        val parser = ExcelParser()
-                        val multipart = call.receiveMultipart()
-                        multipart.forEachPart { part ->
-                            when (part) {
-                                is PartData.FileItem -> {
-                                    val ext = File(part.originalFileName).extension
-                                    if (ext == "xls" || ext == "xlsx") {
-                                        part.streamProvider().use { input ->
-                                            parser.extractData(input)
+                    csrfProtection {
+                        post {
+                            val parser = ExcelParser()
+                            val multipart = call.receiveMultipart()
+                            multipart.forEachPart { part ->
+                                when (part) {
+                                    is PartData.FileItem -> {
+                                        val ext = File(part.originalFileName).extension
+                                        if (ext == "xls" || ext == "xlsx") {
+                                            part.streamProvider().use { input ->
+                                                parser.extractData(input)
+                                            }
                                         }
                                     }
+                                    else -> {
+                                    }
                                 }
-                                else -> {
-                                }
-                            }
 
-                            part.dispose()
+                                part.dispose()
+                            }
+                            if (parser.units.isNotEmpty()) {
+                                examsRepo.uploadExamSchedule(parser.units)
+                            }
+                            call.respondText("Ok")
                         }
-                        if (parser.units.isNotEmpty()) {
-                            examsRepo.uploadExamSchedule(parser.units)
-                        }
-                        call.respondText("Ok")
                     }
 
                 }
 
                 route("delete") {
-                    post {
-                        examsRepo.clearExamSchedule()
-                        call.respondText("Ok")
+                    csrfProtection {
+                        post {
+                            examsRepo.clearExamSchedule()
+                            call.respondText("Ok")
+                        }
                     }
                 }
             }

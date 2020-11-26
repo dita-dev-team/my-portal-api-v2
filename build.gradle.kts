@@ -144,6 +144,7 @@ dependencies {
     implementation("org.apache.poi:poi:4.1.2")
     implementation("org.apache.poi:poi-ooxml:4.1.2")
     implementation("org.jsoup:jsoup:1.13.1")
+    implementation("org.mpierce.ktor.csrf:ktor-csrf:0.5.0")
 
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.koin:koin-test:$koin_version")
