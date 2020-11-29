@@ -1,9 +1,43 @@
+const toolbarOptions = {
+    container: [
+        ["bold", "italic", "underline", "strike"], // toggled buttons
+        ["blockquote", "code-block"],
+        [{header: 1}, {header: 2}], // custom button values
+        [{list: "ordered"}, {list: "bullet"}],
+        [{script: "sub"}, {script: "super"}], // superscript/subscript
+        [{indent: "-1"}, {indent: "+1"}], // outdent/indent
+        [{direction: "rtl"}], // text direction
+        [{size: ["small", false, "large", "huge"]}], // custom dropdown
+        [{header: [1, 2, 3, 4, 5, 6, false]}],
+        [{color: []}, {background: []}], // dropdown with defaults from theme
+        [{font: []}],
+        [{align: []}],
+        ["clean"]
+    ]
+}
+
 const app = new Vue({
     el: '#app',
+    delimiters: ['[[', ']]'],
     data() {
         return {
             isLoading: false,
-            examFile: null
+            examFile: null,
+            notificationTitle: '',
+            notificationContent: '',
+            editorOption: {
+                modules: {
+                    toolbar: toolbarOptions
+                }
+            },
+            messageLength: 0,
+            maxLength: 2000,
+            isDebug: true
+        }
+    },
+    watch: {
+        notificationContent: function (val) {
+            this.messageLength = val.length
         }
     },
     created() {
@@ -110,6 +144,50 @@ const app = new Vue({
                 })
             } finally {
                 this.isLoading = false
+            }
+        },
+        onEditorReady(quill) {
+            console.log("editor ready!");
+        },
+        async sendNotification() {
+            if (!this.notificationTitle || !this.notificationContent) {
+                this.$bvToast.toast(`Both fields must be filled`, {
+                    autoHideDelay: 5000,
+                    appendToast: false,
+                    title: 'Missing fields'
+                })
+                return
+            }
+
+            const ret = confirm("Are you sure you want to send this notification?")
+            if (ret === true) {
+                this.isLoading = true
+                const topic = this.isDebug ? 'debug' : 'messages'
+                const params = new URLSearchParams()
+                params.append('topic', topic)
+                params.append('title', this.notificationTitle)
+                params.append('body', this.notificationContent)
+                try {
+                    const res = await axios.post(window.location.pathname, params, {
+                        headers: {
+                            'X-My-Portal': ''
+                        }
+                    })
+                    this.$bvToast.toast(`Notification sent successfully!`, {
+                        autoHideDelay: 5000,
+                        appendToast: false,
+                        title: 'Success'
+                    })
+                } catch (e) {
+                    console.error(e)
+                    this.$bvToast.toast(`Failed to send notification`, {
+                        autoHideDelay: 5000,
+                        appendToast: false,
+                        title: 'Failed'
+                    })
+                } finally {
+                    this.isLoading = false
+                }
             }
         }
     }

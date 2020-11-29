@@ -5,6 +5,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.cloud.FirestoreClient
+import com.google.firebase.messaging.FirebaseMessaging
 import dita.dev.data.*
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -28,6 +29,10 @@ val appModules = module {
 
     single {
         FirestoreClient.getFirestore(get())
+    }
+
+    single {
+        FirebaseMessaging.getInstance(get())
     }
 
     single {
@@ -57,4 +62,6 @@ val appModules = module {
     }
 
     single<ExamsRepo> { ExamsRepoImpl(get()) }
+
+    single<MessagesRepo> { MessagesRepoImpl(get(), get()) }
 }

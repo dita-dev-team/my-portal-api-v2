@@ -6,13 +6,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    {% block extra_meta %}
-    {% endblock %}
-
 
     <!-- Bootstrap CSS -->
     <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css"/>
     <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css"/>
+    {% block extra_css %}
+    {% endblock %}
     <link rel="stylesheet" href="/static/css/custom.css">
     <title>My Portal</title>
 
@@ -34,6 +33,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     {{ navLink("/app/exams", "Exams", page == "exams") }}
+                    {{ navLink("/app/notifications", "Notifications", page == "notifications") }}
                     <li class="nav-item">
                         <a class="nav-link" href="#" @click="logout">Logout</a>
                     </li>
@@ -70,9 +70,9 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
 </script>
-<script src="/static/js/script.js"></script>
     {% block extra_js %}
 {% endblock %}
 
+<script src="/static/js/script.js"></script>
 </body>
 </html>

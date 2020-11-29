@@ -1,7 +1,6 @@
 package dita.dev.data
 
 import com.google.cloud.firestore.Firestore
-import com.google.cloud.firestore.Query
 
 interface ExamsRepo {
 
@@ -12,7 +11,7 @@ interface ExamsRepo {
     suspend fun uploadExamSchedule(schedule: List<Exam>)
 }
 
-class ExamsRepoImpl(private val firestore: Firestore) : ExamsRepo {
+class ExamsRepoImpl(private val firestore: Firestore) : ExamsRepo, FirestoreRepo() {
     private val collection = "exam_schedule"
 
     override suspend fun getExamScheduleCount(): Int {
@@ -33,7 +32,7 @@ class ExamsRepoImpl(private val firestore: Firestore) : ExamsRepo {
     override suspend fun clearExamSchedule() {
         val batchSize = 100
         val query = firestore.collection(collection).orderBy("__name__").limit(batchSize)
-        return deleteQueryBatch(query, batchSize)
+        return deleteQueryBatch(firestore, query, batchSize)
     }
 
     private suspend fun writeToDb(chunk: List<Exam>) {
@@ -44,25 +43,5 @@ class ExamsRepoImpl(private val firestore: Firestore) : ExamsRepo {
         }
         batch.commit().await()
     }
-
-    private suspend fun deleteQueryBatch(query: Query, batchSize: Int) {
-        val snapshot = query.get().await()
-        if (snapshot.isEmpty) {
-            return
-        }
-
-        val batch = firestore.batch()
-        snapshot.documents.forEach {
-            batch.delete(it.reference)
-        }
-
-        val result = batch.commit().await()
-        if (result.isEmpty()) {
-            return
-        }
-
-        return deleteQueryBatch(query, batchSize)
-    }
-
 
 }
