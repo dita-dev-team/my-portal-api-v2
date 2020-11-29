@@ -163,10 +163,11 @@ const app = new Vue({
             if (ret === true) {
                 this.isLoading = true
                 const topic = this.isDebug ? 'debug' : 'messages'
+                const body = htmlToPlainText(this.notificationContent)
                 const params = new URLSearchParams()
                 params.append('topic', topic)
                 params.append('title', this.notificationTitle)
-                params.append('body', this.notificationContent)
+                params.append('body', body)
                 try {
                     const res = await axios.post(window.location.pathname, params, {
                         headers: {
