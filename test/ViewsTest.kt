@@ -1,7 +1,4 @@
-import dita.dev.data.AuthRepo
-import dita.dev.data.ExamsRepo
-import dita.dev.data.TokenValid
-import dita.dev.data.User
+import dita.dev.data.*
 import dita.dev.main
 import io.ktor.application.*
 import io.ktor.http.*
@@ -22,6 +19,7 @@ class ViewsTest : AutoCloseKoinTest() {
 
     private val authRepo: AuthRepo by inject()
     private val examsRepo: ExamsRepo by inject()
+    private val messagesRepo: MessagesRepo by inject()
 
     @Test
     fun `unauthenticated user is redirected to the login page`() = withTestApplication(Application::main) {
@@ -319,5 +317,53 @@ class ViewsTest : AutoCloseKoinTest() {
         }
 
         coVerify(inverse = true) { examsRepo.uploadExamSchedule(any()) }
+    }
+
+    @Test
+    fun `sending notification successfully`() = withTestApplication(Application::main) {
+        declare {
+            mockk<AuthRepo>()
+        }
+        declare {
+            mockk<MessagesRepo>()
+        }
+
+        // User is redirected to homepage if id_token validation succeeds
+        val user = User("1", "test@gmail.com")
+        every { authRepo.isTokenValid(any()) } returns TokenValid.Yes(user)
+        coEvery { messagesRepo.sendNotification(any(), any(), any(), any()) } returns true
+
+        cookiesSession {
+            handleRequest(HttpMethod.Post, "/app/login") {
+                addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+                addHeader("X-My-Portal", "")
+                addHeader("Origin", "http://localhost:8080")
+                setBody(listOf("id_token" to "test").formUrlEncode())
+            }
+
+            with(handleRequest(HttpMethod.Post, "/app/notifications") {
+                addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+                addHeader("X-My-Portal", "")
+                addHeader("Origin", "http://localhost:8080")
+                setBody(
+                    listOf(
+                        "topic" to "debug",
+                        "title" to "test",
+                        "body" to "test message"
+                    ).formUrlEncode()
+                )
+            }) {
+                assertEquals(HttpStatusCode.OK, response.status())
+            }
+        }
+
+        coVerify {
+            messagesRepo.sendNotification(
+                "test",
+                "test message",
+                "debug",
+                user.email
+            )
+        }
     }
 }

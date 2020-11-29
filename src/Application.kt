@@ -65,7 +65,6 @@ fun Application.main(testing: Boolean = false) {
         validate(HeaderPresent("X-My-Portal"))
     }
 
-//    val secretEncryptKey = hex(System.getProperty("session_encrypt_key"))
     val secretEncryptKey = hex(environment.getConfigValue("session.encrypt_key", "00112233445566778899aabbccddeeff"))
     val secretAuthKey = hex(environment.getConfigValue("session.auth_key", "6819b57a326945c1968f45236581"))
     install(Sessions) {
@@ -85,6 +84,7 @@ fun Application.main(testing: Boolean = false) {
     val remoteConfigRepo by inject<RemoteConfigRepo>()
     val authRepo by inject<AuthRepo>()
     val examsRepo by inject<ExamsRepo>()
+    val messagesRepo by inject<MessagesRepo>()
 
     routing {
         static("static") {
@@ -222,9 +222,30 @@ fun Application.main(testing: Boolean = false) {
                     }
                 }
             }
+
+            route("notifications") {
+                get {
+                    call.respond(getLoggedInPebbleContent("notifications.peb", emptyMap()))
+                }
+
+                csrfProtection {
+                    post {
+                        val payload = call.receiveParameters()
+                        val topic = payload["topic"]!!
+                        val title = payload["title"]!!
+                        val body = payload["body"]!!
+                        val session = call.getUserSession()
+                        messagesRepo.sendNotification(
+                            title,
+                            body,
+                            topic,
+                            session.email
+                        )
+                        call.respondText("Ok")
+                    }
+                }
+            }
         }
-
-
     }
 }
 
