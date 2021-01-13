@@ -4,6 +4,7 @@ import org.jsoup.Jsoup
 import org.jsoup.helper.HttpConnection
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.FormElement
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.Month
 import java.time.Year
@@ -32,15 +33,27 @@ class PortalCalendarProvider : CalendarProvider {
         cookies = response.cookies()
         val document = response.parse()
         val select = document.selectFirst("select#_ctl0_PlaceHolderMain__ctl0_cbTerm")
-        val option = select.selectFirst("option[selected=selected]")
-        val text = option.text().trim()
-        val period = getSemesterPeriod(document)
-        val name: String? = if (period != null) {
-            getNameFromPeriod(period)
-        } else {
-            getName(text)
+        val options = select.select("option")
+        var text = ""
+        val optionTexts = options.map { option -> option.text().trim() }
+        val termValues = options.map { option -> option.attr("value") }
+        text = getLatestSemText(optionTexts)
+        val period = getSemesterPeriod(document, termValues)
+        var name: String? = null
+        if (period != null) {
+            name = getNameFromPeriod(period)
+        }
+
+        if (name == null) {
+            name = getName(text)
         }
         return Calendar(name, period)
+    }
+
+    private fun getLatestSemText(optionTexts: List<String>): String {
+        val formatter = SimpleDateFormat("yyyy MMMM")
+        val dates = optionTexts.map { formatter.parse(it) }.sortedDescending()
+        return formatter.format(dates.first())
     }
 
     private fun getName(text: String): String? {
@@ -103,6 +116,42 @@ class PortalCalendarProvider : CalendarProvider {
             println(e)
             null
         }
+    }
+
+    private fun getSemesterPeriod(doc: Document, terms: List<String>): DateRange? {
+        val today = LocalDate.now()
+        var period: DateRange? = null
+        for (term in terms) {
+            try {
+                val form = doc.selectFirst("#aspnetForm") as FormElement
+                val data = form.formData()
+                data.removeAt(0)
+                data.add(0, HttpConnection.KeyVal.create("__EVENTTARGET", "_ctl0\$PlaceHolderMain\$_ctl0\$btnSearch"))
+                data.add(0, HttpConnection.KeyVal.create("_ctl0:PlaceHolderMain:_ctl0:cbTerm", term))
+                val request = Jsoup.connect(baseUrl)
+                    .followRedirects(true)
+                    .timeout(600 * 1000)
+                    .userAgent(userAgent)
+                    .cookies(cookies)
+                val response = request.data(data).post()
+                val element = response.selectFirst("span[id$=DateRange_CourseList]")
+                val dateRangeString = element.text().trim()
+                val reg = "(\\d{1,2}/\\d{1,2}/\\d{4})".toRegex()
+                val matches = reg.findAll(dateRangeString)
+                val start = matches.first()
+                val end = matches.last()
+                val formatter = DateTimeFormatter.ofPattern("M/d/yyyy")
+                val startDate = LocalDate.from(formatter.parse(start.value))
+                val endDate = LocalDate.from(formatter.parse(end.value))
+                if (endDate.isBefore(today)) {
+                    continue
+                }
+                period = DateRange(startDate.toNormalDate(), endDate.toNormalDate())
+            } catch (e: Exception) {
+                println(e)
+            }
+        }
+        return period
     }
 
 }
