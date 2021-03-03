@@ -1,0 +1,23 @@
+    {% extends 'base.peb' %}
+
+    {% block body %}
+    <div id="app" class="container h-100 d-flex justify-content-center align-items-center">
+        <div class="row">
+            <div class="col-md-12">
+                <b-overlay :show="isLoading" :opacity="0.75" rounded="sm">
+                    <div class="card">
+                        <div class="card-body login-card">
+                            <img class="logo mx-auto d-block" src="/static/logo.png" alt="My Portal logo"/>
+                            <div class="text-center">
+                                <h2>Forbidden</h2>
+                                <a href="#" @click="logout">Go to login</a>
+                            </div>
+                        </div>
+                    </div>
+                </b-overlay>
+            </div>
+        </div>
+    </div>
+
+    {% endblock %}
+

@@ -36,6 +36,7 @@ application {
 tasks.withType<JavaExec> {
     val envFile = rootProject.file(".env")
     if (envFile.exists()) {
+        println(".env file found")
         envFile.readLines().forEach {
             val line = it.trim()
             val (key, value) = line.split("=")

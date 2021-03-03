@@ -44,8 +44,10 @@ const app = new Vue({
         const self = this
         // Only initialize state listener on login page
         if (window.location.pathname === '/app/login') {
+            this.isLoading = true
             firebase.auth().onAuthStateChanged(async (firebaseUser) => {
                 console.log('user state changed')
+                this.isLoading = false
                 // unsubscribe()
                 if (firebaseUser) {
                     try {
@@ -63,6 +65,7 @@ const app = new Vue({
     methods: {
         async login() {
             this.isLoading = true
+            await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
             const provider = new firebase.auth.GoogleAuthProvider()
             try {
                 const result = await firebase.auth().signInWithPopup(provider)
@@ -71,6 +74,7 @@ const app = new Vue({
             }
         },
         async sendTokenToBackend(idToken) {
+            this.isLoading = true
             const params = new URLSearchParams()
             params.append('id_token', idToken)
             try {
@@ -80,10 +84,12 @@ const app = new Vue({
                     }
                 })
                 if (res.status === 200 || res.status === 302) {
-                    location.reload()
+                    window.location = res.request.responseURL
                 }
             } catch (e) {
                 console.error(e)
+            } finally {
+                this.isLoading = false
             }
         },
         logout() {

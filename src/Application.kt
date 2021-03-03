@@ -121,7 +121,7 @@ fun Application.main(testing: Boolean = false) {
                             return@intercept finish()
                         }
                     } else {
-                        if (path != "/app/login") {
+                        if (path != "/app/login" && path != "/app/forbidden") {
                             call.respondRedirect("/app/login")
                             return@intercept finish()
                         }
@@ -150,16 +150,20 @@ fun Application.main(testing: Boolean = false) {
                                     call.respondRedirect("/app/login", permanent = false)
                                 }
                                 is TokenValid.Yes -> {
-                                    // Session should expire in 24 hours
-                                    val expiresAt = System.currentTimeMillis() + (1000 * 60 * 60 * 24)
-                                    call.sessions.set(
-                                        UserSession(
-                                            isValid.data.uid,
-                                            isValid.data.email,
-                                            expiresAt
+                                    if (authRepo.isAdmin(isValid.data.uid)) {
+                                        // Session should expire in 24 hours
+                                        val expiresAt = System.currentTimeMillis() + (1000 * 60 * 60 * 24)
+                                        call.sessions.set(
+                                            UserSession(
+                                                isValid.data.uid,
+                                                isValid.data.email,
+                                                expiresAt
+                                            )
                                         )
-                                    )
-                                    call.respondRedirect("/app", permanent = false)
+                                        call.respondRedirect("/app", permanent = false)
+                                    } else {
+                                        call.respondRedirect("/app/forbidden", permanent = false)
+                                    }
                                 }
                             }
                         }
@@ -169,8 +173,16 @@ fun Application.main(testing: Boolean = false) {
 
             route("logout") {
                 get {
-                    call.sessions.clear<UserSession>()
+                    if (call.isLoggedIn()) {
+                        call.sessions.clear<UserSession>()
+                    }
                     call.respondRedirect("/app")
+                }
+            }
+
+            route("forbidden") {
+                get {
+                    call.respond(PebbleContent("forbidden.peb", FirebaseConfig.generateModel(emptyMap())))
                 }
             }
 

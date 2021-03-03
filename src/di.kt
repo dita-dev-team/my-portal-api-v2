@@ -58,7 +58,7 @@ val appModules = module {
     }
 
     single<AuthRepo> {
-        AuthRepoImpl(get())
+        AuthRepoImpl(get(), get())
     }
 
     single<ExamsRepo> { ExamsRepoImpl(get()) }
