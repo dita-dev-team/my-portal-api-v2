@@ -60,9 +60,26 @@ class ViewsTest : AutoCloseKoinTest() {
             verify { authRepo.isTokenValid(any()) }
         }
 
-        // User is redirected to homepage if id_token validation succeeds
+        // User is redirected to forbidden screen if id_token validation is succesful but is not admin
         val user = User("1", "test@gmail.com")
         every { authRepo.isTokenValid(any()) } returns TokenValid.Yes(user)
+        coEvery { authRepo.isAdmin(any()) } returns false
+
+        with(handleRequest(HttpMethod.Post, "/app/login") {
+            addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+            addHeader("X-My-Portal", "")
+            addHeader("Origin", "http://localhost:8080")
+            setBody(listOf("id_token" to "test").formUrlEncode())
+        }) {
+            assertEquals(HttpStatusCode.Found, response.status())
+            assertEquals("/app/forbidden", response.headers["Location"])
+
+            verify { authRepo.isTokenValid(any()) }
+        }
+
+        // User is redirected to homepage if id_token validation succeeds
+        every { authRepo.isTokenValid(any()) } returns TokenValid.Yes(user)
+        coEvery { authRepo.isAdmin(any()) } returns true
 
         with(handleRequest(HttpMethod.Post, "/app/login") {
             addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
@@ -85,6 +102,7 @@ class ViewsTest : AutoCloseKoinTest() {
         // User is redirected to homepage if id_token validation succeeds
         val user = User("1", "test@gmail.com")
         every { authRepo.isTokenValid(any()) } returns TokenValid.Yes(user)
+        coEvery { authRepo.isAdmin(any()) } returns true
 
         cookiesSession {
             handleRequest(HttpMethod.Post, "/app/login") {
@@ -110,6 +128,7 @@ class ViewsTest : AutoCloseKoinTest() {
         // User is redirected to homepage if id_token validation succeeds
         val user = User("1", "test@gmail.com")
         every { authRepo.isTokenValid(any()) } returns TokenValid.Yes(user)
+        coEvery { authRepo.isAdmin(any()) } returns true
 
         cookiesSession {
             handleRequest(HttpMethod.Post, "/app/login") {
@@ -140,6 +159,7 @@ class ViewsTest : AutoCloseKoinTest() {
         // User is redirected to homepage if id_token validation succeeds
         val user = User("1", "test@gmail.com")
         every { authRepo.isTokenValid(any()) } returns TokenValid.Yes(user)
+        coEvery { authRepo.isAdmin(any()) } returns true
         coEvery { examsRepo.getExamScheduleCount() } returns 5
 
         cookiesSession {
@@ -169,6 +189,7 @@ class ViewsTest : AutoCloseKoinTest() {
         // User is redirected to homepage if id_token validation succeeds
         val user = User("1", "test@gmail.com")
         every { authRepo.isTokenValid(any()) } returns TokenValid.Yes(user)
+        coEvery { authRepo.isAdmin(any()) } returns true
         coEvery { examsRepo.getExamScheduleCount() } returns 0
 
         cookiesSession {
@@ -197,6 +218,7 @@ class ViewsTest : AutoCloseKoinTest() {
         // User is redirected to homepage if id_token validation succeeds
         val user = User("1", "test@gmail.com")
         every { authRepo.isTokenValid(any()) } returns TokenValid.Yes(user)
+        coEvery { authRepo.isAdmin(any()) } returns true
         coEvery { examsRepo.clearExamSchedule() } just Runs
 
         cookiesSession {
@@ -230,6 +252,7 @@ class ViewsTest : AutoCloseKoinTest() {
         // User is redirected to homepage if id_token validation succeeds
         val user = User("1", "test@gmail.com")
         every { authRepo.isTokenValid(any()) } returns TokenValid.Yes(user)
+        coEvery { authRepo.isAdmin(any()) } returns true
         coEvery { examsRepo.uploadExamSchedule(any()) } just Runs
 
         cookiesSession {
@@ -280,6 +303,7 @@ class ViewsTest : AutoCloseKoinTest() {
         // User is redirected to homepage if id_token validation succeeds
         val user = User("1", "test@gmail.com")
         every { authRepo.isTokenValid(any()) } returns TokenValid.Yes(user)
+        coEvery { authRepo.isAdmin(any()) } returns true
         coEvery { examsRepo.uploadExamSchedule(any()) } just Runs
 
         cookiesSession {
@@ -331,6 +355,7 @@ class ViewsTest : AutoCloseKoinTest() {
         // User is redirected to homepage if id_token validation succeeds
         val user = User("1", "test@gmail.com")
         every { authRepo.isTokenValid(any()) } returns TokenValid.Yes(user)
+        coEvery { authRepo.isAdmin(any()) } returns true
         coEvery { messagesRepo.sendNotification(any(), any(), any(), any()) } returns true
 
         cookiesSession {
