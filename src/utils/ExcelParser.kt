@@ -285,8 +285,13 @@ class ExcelParser {
                                 else -> 'X'
                             }
                         }
-                        prefix + code.substring(0, 3) + section
-                    }
+                        try {
+                            prefix + code.substring(0, 3) + section
+                        } catch (e: StringIndexOutOfBoundsException) {
+                            println("Missing code: $courseCode")
+                            ""
+                        }
+                    }.filter { it -> it.isNotEmpty() }
                 }
                 else -> {
                     println("Unable to sanitize $text")
@@ -295,7 +300,7 @@ class ExcelParser {
             val temp = mutableListOf<String>()
             courseCodes.forEach { code ->
                 if (code.length > 7) {
-                    val chunks = code.chunked(7)
+                    val chunks = code.chunked(8)
                     temp.addAll(chunks)
                 } else {
                     temp.add(code)

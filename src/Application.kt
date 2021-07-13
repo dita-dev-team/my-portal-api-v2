@@ -6,7 +6,6 @@ import dita.dev.utils.ExcelParser
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*
-import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.pebble.*
 import io.ktor.request.*
@@ -24,7 +23,6 @@ import org.mpierce.ktor.csrf.OriginMatchesKnownHost
 import org.mpierce.ktor.csrf.csrfProtection
 import java.io.File
 import java.security.SecureRandom
-import java.util.*
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -255,6 +253,12 @@ fun Application.main(testing: Boolean = false) {
                         )
                         call.respondText("Ok")
                     }
+                }
+            }
+
+            route("buildings") {
+                get {
+                    call.respond(getLoggedInPebbleContent("buildings.peb", emptyMap()))
                 }
             }
         }
