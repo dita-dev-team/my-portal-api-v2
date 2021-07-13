@@ -34,6 +34,7 @@
                 <ul class="navbar-nav">
                     {{ navLink("/app/exams", "Exams", page == "exams") }}
                     {{ navLink("/app/notifications", "Notifications", page == "notifications") }}
+                    {{ navLink("/app/buildings", "Buildings", page == "buildings") }}
                     <li class="nav-item">
                         <a class="nav-link" href="#" @click="logout">Logout</a>
                     </li>

@@ -71,3 +71,7 @@ html, body {
     text-align: center;
     width: 180px;
 }
+
+#map {
+    height: 360px;
+}
